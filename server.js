@@ -49,9 +49,16 @@ app.post('/punchrullar', async (req, res) => {
             }
             
 
-        } else if (command.toLowercase === 'remove') {
+        } else if (command.toLowerCase() === 'remove') {
             console.log('punchrullar remove')
             // sql query remove 1 rulle
+            if (punchrulleCount >= 0) {
+                let updateAmount = args[0] ? parseInt(args[0]) : 1
+                const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
+                update = await pool.promise().query(sqlQuery, [punchrulleCount - updateAmount]);
+                console.log(update)
+                punchrulleCount -= updateAmount
+            }
         }
     }
 

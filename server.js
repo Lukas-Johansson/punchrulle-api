@@ -36,8 +36,6 @@ app.post('/punchrullar', async (req, res) => {
 
         if (command.toLowerCase() === 'add') {
             console.log('punchrullar add')
-            // sql query add 1 rulle
-            // const remainingChange = action === 'add' ? currentRemaining + 1 : Math.max(0, currentRemaining - 1);
             if (punchrulleCount >= 0) {
                 let updateAmount = args[0] ? parseInt(args[0]) : 1
                 const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
@@ -59,6 +57,16 @@ app.post('/punchrullar', async (req, res) => {
                 } else {
                     console.log('Insufficient punchrullar count')
                 }
+            }
+
+        } else if (command.toLowerCase() === 'box') {
+            if (punchrulleCount >= 0) {
+                let updateAmount = args[0] ? parseInt(args[0]) : 1
+                let updateValue = updateAmount * 21
+                const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
+                update = await pool.promise().query(sqlQuery, [punchrulleCount + updateValue]);
+                console.log(update)
+                punchrulleCount += updateValue
             }
         }
     }

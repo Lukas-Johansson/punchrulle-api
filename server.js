@@ -35,38 +35,46 @@ app.post('/punchrullar', async (req, res) => {
         console.log(args)
 
         if (command.toLowerCase() === 'add') {
-            console.log('punchrullar add')
-            if (punchrulleCount >= 0) {
-                let updateAmount = args[0] ? parseInt(args[0]) : 1
-                const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
-                update = await pool.promise().query(sqlQuery, [punchrulleCount + updateAmount]);
-                console.log(update)
-                punchrulleCount += updateAmount
+            if (args[0] && parseInt(args[0]) > 0) {
+                console.log('punchrullar add')
+                if (punchrulleCount >= 0) {
+                    let updateAmount = args[0] ? parseInt(args[0]) : 1
+                    const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
+                    update = await pool.promise().query(sqlQuery, [punchrulleCount + updateAmount]);
+                    console.log(update)
+                    punchrulleCount += updateAmount
+                }
             }
 
         } else if (command.toLowerCase() === 'remove') {
             console.log('punchrullar remove')
-            // sql query remove 1 rulle
-            if (punchrulleCount >= 0) {
-                let updateAmount = args[0] ? parseInt(args[0]) : 1
-                if (updateAmount <= punchrulleCount) {
-                    const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
-                    update = await pool.promise().query(sqlQuery, [punchrulleCount - updateAmount]);
-                    console.log(update)
-                    punchrulleCount -= updateAmount
-                } else {
-                    console.log('Insufficient punchrullar count')
+            // Check if the updateAmount is a positive number
+            if (args[0] && parseInt(args[0]) > 0) {
+                // sql query remove 1 rulle
+                if (punchrulleCount >= 0) {
+                    let updateAmount = parseInt(args[0])
+                    if (updateAmount <= punchrulleCount) {
+                        const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
+                        update = await pool.promise().query(sqlQuery, [punchrulleCount - updateAmount]);
+                        console.log(update)
+                        punchrulleCount -= updateAmount
+                    } else {
+                        console.log('Insufficient punchrullar count')
+                    }
                 }
+            } else {
+                console.log('Invalid update amount')
             }
-
         } else if (command.toLowerCase() === 'box') {
-            if (punchrulleCount >= 0) {
-                let updateAmount = args[0] ? parseInt(args[0]) : 1
-                let updateValue = updateAmount * 21
-                const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
-                update = await pool.promise().query(sqlQuery, [punchrulleCount + updateValue]);
-                console.log(update)
-                punchrulleCount += updateValue
+            if (args[0] && parseInt(args[0]) > 0) {
+                if (punchrulleCount >= 0) {
+                    let updateAmount = args[0] ? parseInt(args[0]) : 1
+                    let updateValue = updateAmount * 21
+                    const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
+                    update = await pool.promise().query(sqlQuery, [punchrulleCount + updateValue]);
+                    console.log(update)
+                    punchrulleCount += updateValue
+                }
             }
         }
     }
@@ -74,12 +82,12 @@ app.post('/punchrullar', async (req, res) => {
     res.json({
         response_type: 'in_channel',
         text: `Punchrullar: ${punchrulleCount}`
-    })
+    });
 
-})
+});
 
 
 app.listen(port, () => {
     console.log(`Server is running on http:localhost:${port}`);
-  });
+});
   

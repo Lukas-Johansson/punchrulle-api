@@ -18,8 +18,6 @@ app.use(cors());
 
 app.post('/punchrullar', async (req, res) => {
     console.log(req)
-
-
     let punchrulleCount = -1
     try {
         [result] = await pool.promise().query('SELECT remaining FROM punchrullar ORDER BY timetable DESC LIMIT 1')
@@ -47,17 +45,20 @@ app.post('/punchrullar', async (req, res) => {
                 console.log(update)
                 punchrulleCount += updateAmount
             }
-            
 
         } else if (command.toLowerCase() === 'remove') {
             console.log('punchrullar remove')
             // sql query remove 1 rulle
             if (punchrulleCount >= 0) {
                 let updateAmount = args[0] ? parseInt(args[0]) : 1
-                const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
-                update = await pool.promise().query(sqlQuery, [punchrulleCount - updateAmount]);
-                console.log(update)
-                punchrulleCount -= updateAmount
+                if (updateAmount <= punchrulleCount) {
+                    const sqlQuery = 'INSERT INTO punchrullar (remaining, timetable) VALUES (?, CURRENT_TIMESTAMP)';
+                    update = await pool.promise().query(sqlQuery, [punchrulleCount - updateAmount]);
+                    console.log(update)
+                    punchrulleCount -= updateAmount
+                } else {
+                    console.log('Insufficient punchrullar count')
+                }
             }
         }
     }
